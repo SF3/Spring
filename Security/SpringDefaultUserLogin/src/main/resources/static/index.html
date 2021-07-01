@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <title>OAuth 2.0 Demo</title>
+    <meta name="viewport" content="width=device-width"/>
+    <base href="/"/>
+    <link rel="stylesheet" type="text/css" href="/webjars/bootstrap/css/bootstrap.min.css"/>
+    <script type="text/javascript" src="/webjars/jquery/jquery.min.js"></script>
+    <script type="text/javascript" src="/webjars/bootstrap/js/bootstrap.min.js"></script>
+</head>
+<body ng-app="app" ng-controller="user as user">
+<div class="container">
+    <h1 class="juumbotron">Login Demo</h1>
+    Logged in as: <span ng-bind="user.user"></span>
+    <div>
+        User Roles:
+        <ul>
+            <li ng-repeat="role in user.roles">{{role}}</li>
+        </ul>
+    </div>
+</div>
+</body>
+<script type="text/javascript" src="/webjars/angularjs/angular.min.js"></script>
+<script type="text/javascript">
+    angular.module("app", []).controller("user", function ($http, $location) {
+        var self = this;
+        self.pingreply = "";
+
+        $http.get("/user").success(function (data) {
+            function getRole(authority) {
+                return authority.authority
+            }
+
+            self.user = data.principal.username;
+            self.roles = data.authorities.map(getRole);
+            self.authenticated = true;
+        }).error(function (msg) {
+            self.user = "N/A";
+            self.authenticated = false;
+        });
+    });
+</script>
+</html>
