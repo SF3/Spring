@@ -1,0 +1,58 @@
+<html>
+    <head>
+        <title>Spring Annotation Driven Exercises</title>
+    </head>
+    <body>
+        <h1>Spring Annotation Driven Exercises</h1>
+        <h2>Exercise One</h2>
+        <p>
+            Examine the package <i>exercise.start</i>. You will find a <b>Program</b> class 
+            that launches a <b>FlightBookingGUI</b> which enables users to search for and 
+            book flights. If you look inside <b>FlightBookingGUI</b> you will find that 
+            it depends on a <b>BookingController</b>, which in turn depends on a 
+            <b>FlightSearchEngine</b> and <b>FlightBookingService</b>. At the moment all 
+            dependencies are hardcoded.
+        </p>
+        <p>
+            Introduce dependency injection and the Spring framework as follows:
+        </p>
+        <ol>
+            <li>Extract interfaces from the <b>BookingController</b>, <b>FlightSearchEngine</b> and <b>FlightBookingService</b></li>
+            <li>Declare the <b>FlightBookingGUI</b> class as a Spring service called 'gui' and the dependencies as unnamed components</li>
+            <li>Inject the <b>BookingController</b> into the <b>FlightBookingGUI</b> via properties and autowiring</li>
+            <li>Inject the <b>FlightSearchEngine</b> and <b>FlightBookingService</b> into the <b>BookingController</b> via properties and autowiring</li>
+            <li>Create an <b>AnnotationConfigApplicationContext</b> within the Program class and configure it to use component scanning</li>
+            <li>Ask the Spring context to build the bean called 'gui' and invoke 'setVisible' as before</li>
+        </ol>
+        <h2>Exercise Two</h2>
+        <p>
+            Extend your solution to Exercise One so that all components have names and are injected by name (using either 
+            <b>@Autowired</b> with <b>@Qualifier</b> or <b>@Resource</b>).
+        </p>
+        <h2>Exercise Three</h2>
+        <p>
+            Extend your solution to Exercise Three so that the <b>AnnotationConfigApplicationContext</b> object uses a 
+            configuration object which:
+        </p>
+        <ol>
+            <li>Enables component scanning for the GUI class via <b>@ComponentScan</b></li>
+            <li>Contains bean provider methods to build the <b>BookingController</b>, <b>FlightSearchEngine</b> and <b>FlightBookingService</b></li>
+        </ol>
+        <p>
+            Note that only the GUI class should now need to be explicitly declared as a component.
+        </p>
+        <h2>Exercise Four</h2>
+        <p>
+            Extend your solution to Exercise Three to include constructor injection as follows:
+        </p>
+        <ol>
+            <li>Delete the default constructor in <b>FlightBookingGUI</b></li>
+            <li>Change the visibility of the remaining constructor to 'public'</li>
+            <li>Mark the constructor as <b>@Autowired</b> and inject the arguments via <b>@Value</b></li>
+        </ol>
+        <p>
+            <i>Hint</i> You can modify the methods in the <b>Utilities</b> class and place them 
+            within a named Spring bean. This will enable them to be called via EL expressions.
+        </p>
+    </body>
+</html>

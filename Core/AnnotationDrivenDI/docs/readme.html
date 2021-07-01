@@ -1,0 +1,194 @@
+<html>
+	<head>
+		<title>Annotation Based Dependency Injection</title>
+		<style>
+			td { padding: 5px; }
+		</style>
+	</head>
+	<body>
+		<h1>Annotation Based Dependency Injection in Spring</h1>
+		<table rules="all">
+			<tr style="color:white;background-color:navy">
+				<th width="10%">Package Name</th>
+				<th width="30%">Summary</th>
+				<th width="60%">Description</th>
+			</tr>
+			<tr>
+				<td>demos.spring.notes.v1</td>
+				<td>
+					The 'Hello World' of DI
+				</td>
+				<td>
+					Using Spring annotation based DI we create a shop, which 
+					requires three engines injected in order to work. The shop 
+					and the engines are self declaring beans (via '@Service' 
+					and '@Component') and the injection is done via '@Autowired'. 
+					When we create the Spring application context we provide an 
+					array of class objects to specify the types of the beans.
+				</td>
+			</tr>
+			<tr>
+				<td>demos.spring.notes.v2</td>
+				<td>
+					Introducing component scanning
+				</td>
+				<td>
+					This is identical to the previous demo, except that we no 
+					longer provide an array of class objects to the application 
+					context. Instead we use the 'scan' method to find all the self 
+					declaring beans within the current package.
+				</td>
+			</tr>
+			<tr>
+				<td>demos.spring.notes.v3</td>
+				<td>
+					Explicitly registering bean classes
+				</td>
+				<td>
+					Identical to the previous two demos, except that we manually 
+					register the bean classes via 'register'.
+				</td>
+			</tr>
+			<tr>
+				<td>demos.spring.notes.v4</td>
+				<td>
+					Introducing configuration classes
+				</td>
+				<td>
+					In this case we register a single class with the application 
+					context. This class is empty but annotated with '@Configuration' 
+					to mark it as a config class and with '@ComponentScan' to turn 
+					on component scanning.
+				</td>
+			</tr>
+			<tr>
+				<td>demos.spring.notes.v5</td>
+				<td>
+					Adding bean provider methods
+				</td>
+				<td>
+					Our configuration class no longer does component scanning. 
+					Instead it declares factory methods annotated with '@Bean' 
+					which will be used by Spring to build the shops dependencies.
+				</td>
+			</tr>
+			<tr>
+				<td>demos.spring.notes.v6</td>
+				<td>
+					Adding naming to the bean provider methods
+				</td>
+				<td>
+					This is identical to the previous examples, except that 
+					instead of injecting dependencies by type we do it by name. 
+					This is done by adding the 'name' element to uses of the 
+					'@Bean' annotation and combining '@Qualifier' with '@Autowired'. 
+				</td>
+			</tr>
+			<tr>
+				<td>demos.spring.notes.v7</td>
+				<td>
+					Abandoning JavaBeans conventions
+				</td>
+				<td>
+					In this case we have replaced the three setter methods in 
+					the 'Shop' type with a single heavily annotated 'startup' 
+					method.
+				</td>
+			</tr>
+			<tr>
+				<td>demos.spring.notes.v8</td>
+				<td>
+					Introduce '@Resource'
+				</td>
+				<td>
+					Here we return the code to how it was in V6 but choose to 
+					replace the combination of '@Autowired' and '@Qualifier' 
+					with the JEE '@Resource' annotation.
+				</td>
+			</tr>
+			<tr>
+				<td>demos.spring.notes.v9</td>
+				<td>
+					Combining '@Resource' with named components
+				</td>
+				<td>
+					In this example we continue to use the '@Resource' 
+					annotation in the shop type but remove all the factory 
+					methods from the component class. Instead we enable 
+					component scanning as in V4 but have the dependencies 
+					name themselves via the 'value' element of '@Component'.
+				</td>
+			</tr>
+			<tr>
+				<td>demos.spring.notes.v10</td>
+				<td>
+					Switching to constructors
+				</td>
+				<td>
+					In the shop class we replace the three setter methods with a 
+					constructor annotated with '@Autowired'.
+				</td>
+			</tr>
+			<tr>
+				<td>demos.spring.notes.v11</td>
+				<td>
+					Constructors plus autowiring by name
+				</td>
+				<td>
+					We add '@Qualifier' to the above so we are injecting 
+					dependencies by name into the constructor.
+				</td>
+			</tr>
+			<tr>
+				<td>demos.spring.notes.v12</td>
+				<td>
+					Demonstrating lifecycle methods
+				</td>
+				<td>
+					We take the previous demo and add two methods, one 
+					annotated with '@PostConstruct' and the other with 
+					'@PreDestroy'. Spring calls these at the beginning 
+					and end of the lifecycle of the bean.
+				</td>
+			</tr>
+			<tr>
+				<td>demos.spring.notes.v13</td>
+				<td>
+					Controlling scopes
+				</td>
+				<td>
+					In this case we use '@Scope' to control how many 
+					instances of the bean Spring will create. Both the 
+					shop and pricing engine are placed in prototype scope. 
+					In 'Program.java' we perform the creation process twice 
+					resulting in two shops which each have their own pricing 
+					engines but share the same payment and stock check engines. 
+				</td>
+			</tr>
+			<tr>
+				<td>demos.spring.notes.v14</td>
+				<td>
+					Demonstrating Expression Language
+				</td>
+				<td>
+					We extend the demo from v11 to support sample prices 
+					and discount in the pricing engine, banned cards in the 
+					payments engine, sample quantities in the stock check 
+					engine and a name and opening hours in the shop. Then 
+					we use the '@Value' annotation and EL expressions to 
+					inject the test data. 
+				</td>
+			</tr>
+			<tr>
+				<td>demos.spring.cdi.v1</td>
+				<td>
+					Using the official Java DI annotations
+				</td>
+				<td>
+					This is identical to V8 except that we use the official 
+					'@Named' and '@Inject' annotations.
+				</td>
+			</tr>				
+		</table>
+	</body>
+</html>
