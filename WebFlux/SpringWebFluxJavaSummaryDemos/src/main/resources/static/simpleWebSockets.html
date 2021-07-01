@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script>
+        var socket;
+        function fetchData() {
+            socket = new WebSocket("ws://localhost:8080/demo3");
+            socket.onmessage = function(event) {
+                var item = event.data;
+                console.log("WebSocket received", item);
+                addItemToTable(item);
+            }
+            socket.onopen = function() {
+                console.log("WebSocket opened...");
+                socket.send("Hello");
+                socket.send("from");
+                socket.send("Instil");
+            }
+            socket.onclose = function() {
+                console.log("WebSocket closed...");
+            }
+            socket.onerror = function(error) {
+                console.log("An error occurred", error);
+            }
+        }
+        function addItemToTable(item) {
+            var orderedList = document.getElementById("theList");
+            orderedList.appendChild(createListItemWithText(item));
+        }
+        function createListItemWithText(text) {
+            var cell = document.createElement("li");
+            cell.appendChild(document.createTextNode(text));
+            return cell;
+        }
+    </script>
+</head>
+<body onload="fetchData()">
+<h2>Messages from the server via WebSocket</h2>
+<ol id="theList">
+</ol>
+</body>
+</html>
+

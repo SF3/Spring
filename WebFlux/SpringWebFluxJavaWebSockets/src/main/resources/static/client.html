@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Simple Test Client</title>
+    <style>
+        .padBox {
+            padding-left: 1em;
+            padding-right: 1em;
+        }
+    </style>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+          integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+            integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+            crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"
+            integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN"
+            crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"
+            integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV"
+            crossorigin="anonymous"></script>
+    <script>
+        const httpBaseUrl = "http://localhost:8080/courses/";
+        const wsBaseUrl = "ws://localhost:8080/courses/";
+
+        let coursesTableBody;
+        let selectedCourseAside;
+        let courseUpdateForm;
+        let coursesSocket;
+        let courseUpdatesSocket;
+
+        function init() {
+            setShortcuts();
+            listenForUpdates();
+            fetchAllCourses();
+        }
+
+        function setShortcuts() {
+            coursesTableBody = document.getElementById("trainingCoursesBody");
+            selectedCourseAside = document.getElementById("selectedCourseAside");
+            courseUpdateForm = document.courseUpdateForm;
+        }
+
+        function clearUI() {
+            function clearForm() {
+                courseUpdateForm.id.value = "";
+                courseUpdateForm.title.value = "";
+                courseUpdateForm.difficulty.value = "BEGINNER";
+                courseUpdateForm.duration.value = 1;
+            }
+
+            function clearTableBody() {
+                coursesTableBody.innerHTML = "";
+            }
+
+            function clearCoursesAside() {
+                selectedCourseAside.innerHTML = "";
+            }
+
+            clearForm();
+            clearTableBody();
+            clearCoursesAside();
+        }
+
+        function loadCourses() {
+            clearUI();
+            fetchAllCourses();
+
+            //cancel default behaviour
+            return false;
+        }
+
+        function loadCoursesByDifficulty() {
+            let difficulty = document.fetchCoursesForm.searchCriteria.value
+
+            clearUI();
+            fetchCoursesByDifficulty(difficulty);
+
+            //cancel default behaviour
+            return false;
+        }
+
+        function markCourseUpdated(id) {
+            highlightRow(id, "table-warning");
+        }
+
+        function markCourseDeleted(id) {
+            highlightRow(id, "table-danger");
+        }
+
+        function markCourseAsNew(id) {
+            highlightRow(id, "table-success");
+        }
+
+        function highlightRow(id, className) {
+            let cells = document.querySelectorAll("#trainingCoursesBody tr td:first-child");
+            let cellsArray = Array.prototype.slice.call(cells);
+            let cell = cellsArray.find(cell => cell.innerHTML === id);
+            cell.parentNode.setAttribute("class", className);
+        }
+
+        function listenForUpdates() {
+            courseUpdatesSocket = new WebSocket(wsBaseUrl + "updates/all");
+            courseUpdatesSocket.onmessage = event => {
+                let update = JSON.parse(event.data);
+                let id = update.courseId;
+                switch (update.type) {
+                    case "INSERTED":
+                        console.log("Course", id, "added")
+                        break;
+                    case "UPDATED":
+                        markCourseUpdated(id);
+                        break;
+                    case "DELETED":
+                        markCourseDeleted(id);
+                        break;
+                }
+            }
+        }
+
+        function fetchAllCourses() {
+            coursesSocket = new WebSocket(wsBaseUrl);
+            coursesSocket.onmessage = event => displayCourseInTable(JSON.parse(event.data));
+        }
+
+        function fetchCoursesByDifficulty(difficulty) {
+            const socket = new WebSocket(wsBaseUrl + "byDifficulty");
+            socket.onmessage = event => displayCourseInTable(JSON.parse(event.data));
+            socket.onopen = () => socket.send(difficulty);
+        }
+
+        function selectSingleCourse(id) {
+            let socket = new WebSocket(wsBaseUrl + "byId/" + id);
+            socket.onmessage = event => {
+                let course = JSON.parse(event.data);
+                displayCourseInAside(course);
+                displayCourseInForm(course);
+            };
+        }
+
+        function deleteCourse(id) {
+            fetch(httpBaseUrl + id, {method: 'DELETE'})
+                .then(resp => resp.text())
+                .then(text => {
+                    console.log("Delete returned: ", text);
+                });
+        }
+
+        function updateCourse() {
+            let course = {
+                id: courseUpdateForm.id.value,
+                title: courseUpdateForm.title.value,
+                difficulty: courseUpdateForm.difficulty.value,
+                duration: courseUpdateForm.duration.value
+            };
+            fetch(httpBaseUrl + course.id,
+                {
+                    method: 'PUT',
+                    body: JSON.stringify(course),
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                }).then(resp => resp.text())
+                .then(text => console.log("Update returned: ", text));
+
+            return false;
+        }
+
+        function displayCourseInForm(course) {
+            document.courseUpdateForm.id.value = course.id;
+            document.courseUpdateForm.title.value = course.title;
+            document.courseUpdateForm.difficulty.value = course.difficulty;
+            document.courseUpdateForm.duration.value = course.duration;
+        }
+
+        function displayCourseInAside(course) {
+            selectedCourseAside.innerHTML = "";
+            const content = mark([
+                box("ID: ", course.id),
+                box("Title: ", course.title),
+                box("Difficulty: ", course.difficulty),
+                box("Duration: ", course.duration),
+            ]);
+            selectedCourseAside.appendChild(content);
+        }
+
+        function displayCourseInTable(course) {
+            coursesTableBody.appendChild(courseRow(course));
+        }
+
+        function courseRow(course) {
+            return tr([
+                td(course.id),
+                td(course.title),
+                courseDetailsLink(course.id),
+                courseDeleteLink(course.id)
+            ]);
+        }
+
+        function tr(children) {
+            const node = document.createElement("tr");
+            children.forEach(child => node.appendChild(child));
+            return node;
+        }
+
+        function mark(children) {
+            const node = document.createElement("mark");
+            children.forEach(child => node.appendChild(child));
+            return node;
+        }
+
+        function box(title, text) {
+            const span = document.createElement("span");
+            span.setAttribute("class", "padBox")
+
+            const bold = document.createElement("b");
+
+            bold.appendChild(document.createTextNode(title));
+            span.appendChild(bold);
+            span.appendChild(document.createTextNode(text));
+            return span;
+        }
+
+        function td(text) {
+            const node = document.createElement("td");
+            node.appendChild(document.createTextNode(text));
+            return node;
+        }
+
+        function courseDetailsLink(id) {
+            const node = document.createElement("td");
+            node.onclick = event => selectSingleCourse(id);
+            node.setAttribute("class", "");
+            node.appendChild(document.createTextNode("select"));
+            return node;
+        }
+
+        function courseDeleteLink(id) {
+            const node = document.createElement("td");
+            node.onclick = event => deleteCourse(id);
+            node.setAttribute("class", "");
+            node.appendChild(document.createTextNode("delete"));
+            return node;
+        }
+    </script>
+</head>
+<body onload="init()">
+<h2 class="text-center">Test Client For Courses Service</h2>
+<form name="fetchCoursesForm" onsubmit="return loadCourses()">
+    <div class="form-group">
+        <label for="searchCriteria">Difficulty:</label>
+        <select name="searchCriteria" id="searchCriteria">
+            <option value="BEGINNER" selected>Beginner</option>
+            <option value="INTERMEDIATE">Intermediate</option>
+            <option value="ADVANCED">Advanced</option>
+        </select>
+    </div>
+    <div class="btn-group">
+        <button type="button" class="btn btn-primary"
+                onclick="loadCourses()">
+            Refresh All
+        </button>
+        <button type="button" class="btn btn-primary"
+                onclick="loadCoursesByDifficulty()">
+            Find By Difficulty
+        </button>
+    </div>
+</form>
+<hr>
+<aside id="selectedCourseAside" class="text-center">
+</aside>
+<hr>
+<div class="container">
+    <div class="row">
+        <div class="col-sm-8">
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Title</th>
+                    <th/>
+                    <th/>
+                </tr>
+                </thead>
+                <tbody id="trainingCoursesBody">
+                </tbody>
+            </table>
+        </div>
+        <div class="col-sm-4">
+            <h3>Create or update a course</h3>
+            <form onsubmit="return updateCourse()" name="courseUpdateForm">
+                <div class="form-group row">
+                    <label for="courseId" class="col-sm-4 col-form-label">ID:</label>
+                    <input type="text" class="form-control col-sm-8"
+                           name="id" id="courseId"
+                           placeholder="Course Id goes here">
+                </div>
+                <div class="form-group row">
+                    <label for="courseTitle" class="col-sm-4 col-form-label">Title:</label>
+                    <input type="text" class="form-control col-sm-8"
+                           name="title" id="courseTitle"
+                           placeholder="Course title goes here">
+                </div>
+                <div class="form-group row">
+                    <label for="courseDifficulty" class="col-sm-4 col-form-label">Difficulty:</label>
+                    <select name="difficulty" class="form-control col-sm-8" id="courseDifficulty">
+                        <option value="BEGINNER">Beginner</option>
+                        <option value="INTERMEDIATE">Intermediate</option>
+                        <option value="ADVANCED">Advanced</option>
+                    </select>
+                </div>
+                <div class="form-group row">
+                    <label for="courseDuration" class="col-sm-4 col-form-label">Duration:</label>
+                    <input type="number" class="form-control col-sm-8" name="duration"
+                           min="1" max="5" value="1"
+                           id="courseDuration">
+                </div>
+                <div class="form-group row">
+                    <div class="col text-center">
+                        <input type="submit" value="Update Course"
+                               class="btn btn-primary">
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>

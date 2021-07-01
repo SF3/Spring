@@ -1,0 +1,47 @@
+<html>
+    <head>
+        <title>Examples of Using Spring MVC Controllers</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+    <body>
+        <h1>Examples of Using Spring MVC Controllers</h1>
+        <h2>Writing Controller Methods</h2>
+        <ul>
+            <li><a href="demos/login1.htm">The 'Hello World' controller method</a></li>
+            <li><a href="demos/login2.htm?username=Dave&password=wn1hgb">Reading parameters individually from the URL</a></li>
+            <li><a href="demos/login3.htm?username=Dave&password=wn1hgb">Using the raw <i>request</i> and <i>response</i> objects</a></li>
+            <li><a href="demos/login4.htm?username=Dave&password=wn1hgb">Loading parameters into a JavaBean</a></li>
+            <li>Loading parameters into a JavaBean via a POST request:</li>
+        </ul>
+        <div id="loginForm1" style="margin-left: 4em;">
+            <form action="demos/login5.htm" method="POST">
+                Username:<input name="username" type="text" size="10" value="Dave"/><br>
+                Password:<input name="password" type="text" size="10" value="wn1hgb"/><br>
+                <input type="submit" value="Login"/>
+            </form>
+        </div>
+        <ul>
+            <li><a href="demos/dave/wn1hgb/login6.htm">Reading parameters from the URL path</a></li>
+            <li><a href="demos/login7.htm">Reading headers from the request</a></li>
+            <li><a href="demos/login8.htm">Reading cookies from the request (relies on session existing)</a></li>
+            <li>Reading the entire body:</li>
+        </ul>
+        <div id="loginForm2" style="margin-left: 4em;">
+            <form action="demos/login9.htm" method="POST">
+                Username:<input name="username" type="text" size="10" value="Dave"/><br>
+                Password:<input name="password" type="text" size="10" value="wn1hgb"/><br>
+                <input type="submit" value="Login"/>
+            </form>
+        </div>
+        <ul>
+            <li>Redirecting to a Server Page</li>
+        </ul>
+        <div id="loginForm3" style="margin-left: 4em;">
+            <form action="demos/login10.htm" method="POST">
+                Username:<input name="username" type="text" size="10" value="Dave"/><br>
+                Password:<input name="password" type="text" size="10" value="wn1hgb"/><br>
+                <input type="submit" value="Login"/>
+            </form>
+        </div>
+    </body>
+</html>

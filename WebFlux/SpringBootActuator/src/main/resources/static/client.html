@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Hello Spring Boot Actuator</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+          integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+            integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+            crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"
+            integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN"
+            crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"
+            integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV"
+            crossorigin="anonymous"></script>
+    <script>
+        function init() {
+            fetch('/actuator/health/customHealth')
+                .then(resp => resp.json())
+                .then(displayCustomHealth);
+            fetch('/actuator/metrics')
+                .then(resp => resp.json())
+                .then(displayMetrics);
+            fetch('/actuator/httptrace')
+                .then(resp => resp.json())
+                .then(displayTracings);
+        }
+
+        function displayMetrics(data) {
+            let metricNames = data.names;
+
+            let table = document.getElementById("metricsTableBody");
+            metricNames.forEach(name => {
+                table.appendChild(tr([
+                    td(name),
+                    metricLink(name)
+                ]));
+            });
+        }
+
+        function displayTracings(data) {
+            let tracings = data.traces;
+            let list = document.getElementById("tracingsList");
+
+            tracings.forEach(trace => {
+                let method = trace.request.method;
+                let uri = trace.request.uri;
+                list.appendChild(li(method + ' request to ' + uri));
+            });
+        }
+
+        function displayCustomHealth(data) {
+            let customHealth = data.details;
+
+            let list = document.getElementById("healthValuesList");
+            list.appendChild(li(customHealth.foo));
+            list.appendChild(li(customHealth.bar));
+            list.appendChild(li(customHealth.zed));
+        }
+
+        function li(text) {
+            const node = document.createElement("li");
+            node.appendChild(document.createTextNode(text));
+            return node;
+        }
+
+        function tr(children) {
+            const node = document.createElement("tr");
+            children.forEach(child => node.appendChild(child));
+            return node;
+        }
+
+        function td(text) {
+            const node = document.createElement("td");
+            node.appendChild(document.createTextNode(text));
+            return node;
+        }
+
+        function metricLink(id) {
+            const node = document.createElement("td");
+            node.onclick = event => fetchMetric(id);
+            node.setAttribute("class", "");
+            node.appendChild(document.createTextNode("select"));
+            return node;
+        }
+
+        function fetchMetric(name) {
+            fetch("actuator/metrics/" + name)
+                .then(resp => resp.json())
+                .then(displayMetric)
+        }
+
+        function displayMetric(data) {
+            let metricData = document.getElementById("metricData");
+            metricData.innerText = JSON.stringify(data);
+        }
+    </script>
+</head>
+<body onload="init()">
+<h1>Hello Spring Boot Actuator</h1>
+<hr>
+<h3>The Applications Health</h3>
+<p>
+    The custom health values are:
+</p>
+<ul id="healthValuesList">
+</ul>
+<hr>
+<h3>The Available Metrics</h3>
+<div class="container">
+    <div class="row">
+        <div class="col-sm-4">
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Link</th>
+                </tr>
+                </thead>
+                <tbody id="metricsTableBody">
+                </tbody>
+            </table>
+        </div>
+        <div class="col-sm-8">
+            <div id="metricData">
+            </div>
+        </div>
+    </div>
+</div>
+<hr>
+<h3>The Application Trace</h3>
+<ol id="tracingsList">
+</ol>
+</body>
+</html>

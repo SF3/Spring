@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script>
+        var socket;
+
+        function sendMessage() {
+            emptyList();
+            socket.send(document.getElementById("characterChoice").value);
+            return false;
+        }
+
+        function emptyList() {
+            var orderedList = fetchList();
+            orderedList.innerHTML = "";
+        }
+
+        function fetchList() {
+            return document.getElementById("theList");
+        }
+
+        function prepareSocket() {
+            socket = new WebSocket("ws://localhost:8080/demo4");
+            socket.onmessage = function(event) {
+                var item = event.data;
+                console.log("WebSocket received", item);
+                addItemToTable(item);
+            }
+            socket.onopen = function() {
+                console.log("WebSocket opened...");
+            }
+            socket.onclose = function() {
+                console.log("WebSocket closed...");
+            }
+            socket.onerror = function(error) {
+                console.log("An error occurred", error);
+            }
+        }
+        function addItemToTable(item) {
+            var orderedList = fetchList();
+            orderedList.appendChild(createListItemWithText(item));
+        }
+        function createListItemWithText(text) {
+            var cell = document.createElement("li");
+            cell.appendChild(document.createTextNode(text));
+            return cell;
+        }
+    </script>
+</head>
+<body onload="prepareSocket()">
+<h2>Specify the show to load characters</h2>
+<form onsubmit="return sendMessage()">
+    <input type="text" id="characterChoice">
+    <input type="submit" value="Load Characters">
+</form>
+<ol id="theList">
+</ol>
+</body>
+</html>

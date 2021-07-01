@@ -1,0 +1,56 @@
+<html>
+	<head>
+            <title>About this Application</title>
+	</head>
+	<body>
+		<h1>The Flight Booking Application</h1>
+		<p>
+			This is a prototype application for booking flights, built using Spring MVC. The
+			basic functionality is as follows:
+		</p>
+		<ol>
+			<li>On the first page you enter where you want to fly from and to, with the associated dates</li>
+			<li>You are then presented with all the matching flights, and choose which ones you want</li>
+			<li>Finally you are presented with a confirmation or failure page.</li>
+		</ol>
+		<p>
+			The packages used in the code are presented below:
+		</p>
+		<table rules="all">
+			<tr>
+				<th>Package</th><th>Description</th>
+			</tr>
+			<tr>
+				<th style="text-align:left">demos.spring.boot.flights.controllers</th>
+				<td>
+					Contains controller classes that are associated with URL's 
+					and respond to GET or POST requests (or both)
+				</td>
+			</tr>
+			<tr>
+				<th style="text-align:left">demos.spring.boot.flights.domain and demos.spring.boot.flights.services</th>
+				<td>
+					Contain the core flight booking functionality, this
+					is drawn from an exercise you did on the Spring course
+				</td>
+			</tr>
+			<tr>
+				<th style="text-align:left">demos.spring.boot.flights.beans</th>
+				<td>
+					Contains basic JavaBeans that are used to store information 
+					entered into HTML forms
+				</td>
+			</tr>
+			<tr>
+				<th style="text-align:left">demos.spring.boot.flights.domain.errors</th>
+				<td>
+					Contains application specific exception classes and a global exception handler
+				</td>
+			</tr>
+		</table>
+		<hr/>
+		<p>
+			<a href="/start">Start the Application</a>
+		</p>
+	</body>
+</html>
